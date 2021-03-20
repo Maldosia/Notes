@@ -1,0 +1,15 @@
+调度器
+一、启动流程：
+	1.启动
+		SpringApplication.run(XxlJobAdminApplication.class, args);
+	2.加载XxlJobAdminConfig，初始化 XxlJobScheduler
+		2.1 初始化i18n
+		2.2 注册监控线程启动，查找自动注册的机器列表，移除连接超时的机器
+			执行器端，ExecutorRegistryThread 每隔30S，向每个调度器发送心跳检测请求，JobApiController，接收请求，更新数据库 xxl_job_registry	表的 update_time字段。
+			更新每个集群的机器列表地址
+		2.3 失败重试线程 启动
+		2.4 任务丢失线程 启动
+		2.5 创建 块慢两个线程池 JobTriggerPoolHelper.fastTriggerPoolJobTriggerPoolHelper.slowTriggerPool
+		2.6 日志线程 启动
+		2.7 创建调度线程 scheduleThread和ringThread
+	3.WEB发布，提供HTTP接口

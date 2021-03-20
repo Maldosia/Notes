@@ -1,0 +1,38 @@
+执行器
+一、启动流程：
+	1.启动
+		SpringApplication.run(XxlJobExecutorApplication.class, args);
+	2.加载 XxlJobConfig，创建XxlJobSpringExecutor对象(继承XxlJobExecutor)。
+		2.1 XxlJobSpringExecutor.afterSingletonsInstantiated()
+			initJobHandlerMethodRepository(applicationContext)
+				获取带有@XxlJob注解的类和方法，放入XxlJobExecutor的jobHandlerRepository集合
+		2.2 XxlJobExecutor.start()
+			XxlJobFileAppender.initLogPath(logPath);//初始日志
+			initAdminBizList(adminAddresses, accessToken);//将调度器列表放入 XxlJobExecutor.adminBizList
+			JobLogFileCleanThread.getInstance().start(logRetentionDays);//启动日志清除线程
+			TriggerCallbackThread.getInstance().start();//初始化日志回调线程 扫描处理callBackQueue(JobThread执行结果executeResult放入callBackQueue)
+			initEmbedServer(address, ip, port, appname, accessToken);//初始化内嵌服务(RPC Provider)
+	3.提供本机RPC服务EmbedServer //Netty部分
+		ExecutorBiz executorBiz = = new ExecutorBizImpl(); //不是 ExecutorBizClient
+	4.将本机注册至调度器(rpc)
+		startRegistry(appname, address);
+			遍历 XxlJobExecutor.adminBizList 调用XxlJobRemotingUtil.postBody()//注册
+二、执行流程
+	1.使用Netty监听本机端口
+	2.EmbedHttpServerHandler.channelRead0()
+		//接收到消息，通过bizThreadPool执行
+		//beat、idleBeat、run、kill、log方法
+	3.以run方法分析 ExecutorBizImpl.run()
+		//获取jobHandler 并且 创建jobThread，注册到 XxlJobExecutor.jobThreadRepository
+		jobThread.pushTriggerQueue(triggerParam);//将任务参数放入 JobThread.triggerQueue !!!一个jobHandler对应一个jobThread!!!
+	4.JobThread 开始执行任务
+		jobHandler.init();
+		//通过FutureTask方式 jobHandler.execute(triggerParam);
+		jobHandler.destroy();
+	5.日志回调
+		TriggerCallbackThread.pushCallBack();//把executeResult放入TriggerCallbackThread.callBackQueue
+		doCallback();
+			//遍历XxlJobExecutor.adminBizList 调用XxlJobRemotingUtil.postBody()
+	6.子任务执行
+		日志回调至调度器controller，判断执行成功且有childJobId，遍历每个childJobId，再次执行JobTriggerPoolHelper.trigger();
+		

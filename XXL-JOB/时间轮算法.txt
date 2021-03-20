@@ -1,0 +1,17 @@
+条件： nextScheduleTime < nowtime + 5S(预读)
+---------------------nextScheduleTime--------------------------------------nowtime+5S---------------------->
+
+case1: 未在预读时间内,本次不需要处理
+---------------------nextScheduleTime--------nextScheduleTime+5S-----------nowtime------------------------->
+
+case2: 直接调度
+---------------------nextScheduleTime--------nowtime-----------------------nextScheduleTime+5S------------->
+
+	case3: 调度后,根据corn计算nextScheduleTime,满足放入时间轮
+	-----------------nextScheduleTime--------------------------------------nowtime+5S---------------------->
+	
+other: 放入时间轮
+---------------------nowtime-----------------nextScheduleTime--------------nowtime+5S---------------------->
+
+放入时间轮步骤：
+1.
