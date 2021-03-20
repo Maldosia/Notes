@@ -100,43 +100,7 @@ docker run -it --name=c1 --volumes-from c3 centos:7 /bin/bash
 docker run -it --name=c2 --volumes-from c3 centos:7 /bin/bash
 ```
 
-## 五、Docker应用部署
-
-### 1、MySQL部署
-
-```shell
-# 在/root目录下创建MySQL目录,用于存储MySQL数据信息
-mkdir ~/mysql
-cd ~/mysql
-```
-
-```shell
-docker run -id \
--p 3307:3306 \  # -p 端口映射
---name=c_mysql \
--v $PWD/conf:/etc/mysql/conf.d \
--v $PWD/logs:/logs \
--v $PWD/data:/var/lib/mysql \
--e MYSQL_ROOT_PASSWORD=123456 \
-mysql:5.6
-```
-
-### 2、Tomcat部署
-
-```shell
-# 在/root目录下创建tomcat目录,用于存储tomcat数据信息
-mkdir ~/tomcat
-cd ~/tomcat
-```
-
-```shell
-docker run -id --name=c_tomcat \
--p 8080:8080 \
--v $PWD:/usr/local/tomcat/webapps \
-tomcat
-```
-
-## 六、Docker镜像原理
+## 五、Docker镜像原理
 
 操作系统组成部分
 
@@ -163,7 +127,7 @@ Docker镜像是由特殊的文件系统叠加而成
 - 一个镜像可以放在另一个镜像的上面。位于下面的镜像称为父镜像，最底部的镜像称为基础镜像
 - 当从一个镜像启动容器时，Docker会在最顶层加载一个可读写文件系统作为容器
 
-## 七、Dockerfile关键字
+## 六、Dockerfile关键字
 
 | 关键字     | 作用           | 备注                                                |
 | ---------- | -------------- | --------------------------------------------------- |
