@@ -70,7 +70,7 @@ jdk1.5是写死的，jdk1.6引入了适应性自旋锁，意味着时间不是�
 
 ## 2. 对象头之markword
 
-![](E:\Study\Lock\images\对象头之Markword.png)
+![](images\对象头之Markword.png)
 
 # 3. Synchronized
 
