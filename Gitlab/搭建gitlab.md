@@ -13,7 +13,18 @@ vim /etc/gitlab/gitlab.rb
 gitlab-ctl reconfigure #执行很长时间
 gitlab-restart
 
-##坑
+#查看gitlab启动状态
+gitlb-ctl status
+#停止gitlab
+gitlab-ctl stop
+#卸载gitlab
+rpm -e gitlab-ee	#或者是gitlab-ce
+#关闭进程
+ps -ef|grep gitlab
+kill -9 pid
+#删除gitlab文件
+find / -name *gitlab*|xargs rm -rf
+find / -name gitlab|xargs rm -rf
 
 
 

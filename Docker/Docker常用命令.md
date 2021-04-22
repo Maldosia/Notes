@@ -1,4 +1,4 @@
-## 一、安装Docker
+# 1. 安装Docker
 
 ```shell
 #1、yum包更新到最新
@@ -13,7 +13,7 @@ yum install -y docker-ce
 docker -v
 ```
 
-## 二、配置Docker
+# 2. 配置Docker
 
 默认从http://hub.docker.com/下载docker镜像，太慢，可以替换为
 
@@ -24,9 +24,9 @@ docker -v
 
 Docker Hub官网：http://www.hub.docker.com
 
-## 三、常用命令
+# 3. 常用命令
 
-### Docker命令
+## 3.1 Docker命令
 
 ```shell
 #启动docker
@@ -41,7 +41,7 @@ systemctl restart docker
 systemctl enable docker
 ```
 
-### Image命令
+## 3.2 Image命令
 
 ```shell
 #查看镜像
@@ -57,7 +57,7 @@ docker rmi image_id
 docker rmi `docker image -q`
 ```
 
-### Container命令
+## 3.3 Container命令
 
 ```shell
 #查看容器
@@ -80,9 +80,11 @@ docker rm centos7
 docker inspect centos7
 #查看容器进程信息
 docker top centos7
+#重启容器
+docker restart mysql
 ```
 
-## 四、数据卷
+# 4. 数据卷
 
 ```shell
 #挂载数据卷
@@ -90,7 +92,7 @@ docker top centos7
 docker run -it --name=c1 -v /root/data:/root/data_container centos:7 /bin/bash
 ```
 
-### 数据卷容器
+## 4.1 数据卷容器
 
 ```shell
 #使用 -v 参数,设置数据卷
@@ -100,7 +102,7 @@ docker run -it --name=c1 --volumes-from c3 centos:7 /bin/bash
 docker run -it --name=c2 --volumes-from c3 centos:7 /bin/bash
 ```
 
-## 五、Docker镜像原理
+# 5. Docker镜像原理
 
 操作系统组成部分
 
@@ -127,7 +129,7 @@ Docker镜像是由特殊的文件系统叠加而成
 - 一个镜像可以放在另一个镜像的上面。位于下面的镜像称为父镜像，最底部的镜像称为基础镜像
 - 当从一个镜像启动容器时，Docker会在最顶层加载一个可读写文件系统作为容器
 
-## 六、Dockerfile关键字
+# 6. Dockerfile关键字
 
 | 关键字     | 作用           | 备注                                                |
 | ---------- | -------------- | --------------------------------------------------- |
@@ -143,33 +145,82 @@ Docker镜像是由特殊的文件系统叠加而成
 | VOLUME     | 可挂载的数据卷 | 指定image的哪些目录可以在启动的时候挂载到文件系统中 |
 | EXPOSE     | 暴露端口       | 定义容器运行的时候监听的端口，通过-p来绑定暴露端口  |
 
-## 七、docker安装常用软件
+# 7. docker安装常用软件
 
-### 1、mysql
+## 7.1 mysql
+
+### 7.1.1 下载镜像并运行
 
 ```shell
-# 在/root目录下创建MySQL目录,用于存储MySQL数据信息
-mkdir ~/mysql
-cd ~/mysql
+# 在/root/docker目录下创建MySQL目录,用于存储MySQL数据信息
+mkdir /root/docker/mysql
+cd /root/docker/mysql
 ```
 
 ```shell
+docker pull mysql:5.7
+
 docker run -id \
--p 3307:3306 \
---name=c_mysql \
+-p 3306:3306 \
+--name=mysql \
 -v $PWD/conf:/etc/mysql/conf.d \
 -v $PWD/logs:/logs \
 -v $PWD/data:/var/lib/mysql \
 -e MYSQL_ROOT_PASSWORD=123456 \
-mysql:5.6
+mysql:5.7
 ```
 
-### 2、tomcat
+### 7.1.2 修改字符编码
 
 ```shell
-# 在/root目录下创建tomcat目录,用于存储tomcat数据信息
-mkdir ~/tomcat
-cd ~/tomcat
+#在conf目录创建一个my.cnf文件
+vi my.cnf
+
+[client]
+default-character-set=utf8
+
+[mysql]
+default-character-set=utf8
+
+[mysqld]
+init_connect='SET collation_connection = utf8_unicode_ci'
+init_connect='SET NAMES utf8'
+character-set-server=utf8
+collation-server=utf8_unicode_ci
+skip-character-set-client-handshake
+skip-name-resolve
+
+#重启mysql容器
+docker restart mysql
+```
+
+## 7.2 redis
+
+```shell
+# 在/root/docker目录下创建redis目录,用于存储redis数据信息
+mkdir -p /root/docker/redis/conf
+cd /root/docker/redis/redis/conf
+#预先创建 redis.conf 文件
+touch redis.conf
+```
+
+```shell
+docker pull redis
+
+docker run -id \
+-p 6379:6379 \
+--name=redis \
+-v $PWD/data:/data \
+-v $PWD/conf/redis.conf:/etc/redis/redis.conf \
+-d redis redis-server /etc/redis/redis.conf
+```
+
+## 7.3 tomcat
+
+```shell
+# 在/root/docker目录下创建tomcat目录,用于存储tomcat数据信息
+mkdir /root/docker/tomcat
+cd /root/docker/tomcat
 ```
 
 ```shell
@@ -179,4 +230,14 @@ docker run -id --name=c_tomcat \
 tomcat
 ```
 
-## 
+
+
+# 8. 常见问题
+
+## 8.1 容器起不来
+
+```shell
+#查看容器运行日志
+docker logs [container ID]
+```
+
